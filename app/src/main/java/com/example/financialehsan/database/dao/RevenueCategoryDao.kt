@@ -1,6 +1,7 @@
 package com.example.financialehsan.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.financialehsan.database.entities.RevenueCategory
@@ -20,4 +21,7 @@ interface RevenueCategoryDao {
 
     @Insert
     fun addCategories(categories:List<RevenueCategory>)
+
+    @Delete
+    fun deleteCategory(category:RevenueCategory)
 }

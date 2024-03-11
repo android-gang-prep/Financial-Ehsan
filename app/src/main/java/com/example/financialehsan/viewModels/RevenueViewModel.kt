@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.financialehsan.database.entities.Cost
 import com.example.financialehsan.database.entities.CostCategory
-import com.example.financialehsan.database.entities.relations.BudgetWithCategory
+import com.example.financialehsan.database.entities.Revenue
+import com.example.financialehsan.database.entities.RevenueCategory
 import com.example.financialehsan.database.entities.relations.CostWithCategory
-import com.example.financialehsan.repositories.BudgetRepository
+import com.example.financialehsan.database.entities.relations.RevenueWithCategory
 import com.example.financialehsan.repositories.CostCategoryRepository
 import com.example.financialehsan.repositories.CostRepository
+import com.example.financialehsan.repositories.RevenueCategoryRepository
+import com.example.financialehsan.repositories.RevenueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,44 +20,31 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class CostViewModel:ViewModel(),KoinComponent {
-    private val costRepo:CostRepository by inject()
-    private val budgetRepo:BudgetRepository by inject()
-    private val categoryRepo:CostCategoryRepository by inject()
+class RevenueViewModel:ViewModel(),KoinComponent {
+    private val revenueRepo:RevenueRepository by inject()
+    private val categoryRepo:RevenueCategoryRepository by inject()
 
-    private val _costs = MutableStateFlow(emptyList<CostWithCategory>())
-    val costs = _costs.asStateFlow()
+    private val _revenues = MutableStateFlow(emptyList<RevenueWithCategory>())
+    val revenues = _revenues.asStateFlow()
 
-    private val _budgets = MutableStateFlow(emptyList<BudgetWithCategory>())
-    val budgets = _budgets.asStateFlow()
-
-    private val _categories = MutableStateFlow(emptyList<CostCategory>())
+    private val _categories = MutableStateFlow(emptyList<RevenueCategory>())
     val categories = _categories.asStateFlow()
 
     init {
-        getCosts()
-        getBudgets()
+        getRevenues()
         getCategories()
     }
 
-    fun getBudgets(){
+    fun getRevenues(){
         viewModelScope.launch(Dispatchers.IO){
-            budgetRepo.getBudgets().collect{result->
-                _budgets.update { result }
+            revenueRepo.getRevenues().collect{result->
+                _revenues.update { result }
             }
         }
     }
-
-    fun getCosts(){
+    fun deleteRevenue(revenue: Revenue){
         viewModelScope.launch(Dispatchers.IO){
-            costRepo.getCosts().collect{result->
-                _costs.update { result }
-            }
-        }
-    }
-    fun deleteCost(cost: Cost){
-        viewModelScope.launch(Dispatchers.IO){
-            costRepo.deleteCost(cost)
+            revenueRepo.deleteRevenue(revenue)
         }
     }
 
@@ -66,24 +56,24 @@ class CostViewModel:ViewModel(),KoinComponent {
         }
     }
 
-    fun addCost(cost: Cost){
+    fun addRevenue(revenue: Revenue){
         viewModelScope.launch(Dispatchers.IO) {
-            costRepo.addCost(cost)
+            revenueRepo.addRevenue(revenue)
         }
     }
-    fun updateCost(cost: Cost){
+    fun updateRevenue(revenue: Revenue){
         viewModelScope.launch(Dispatchers.IO) {
-            costRepo.updateCost(cost)
+            revenueRepo.updateRevenue(revenue)
         }
     }
 
     fun addCategory(title:String){
         viewModelScope.launch(Dispatchers.IO){
-            categoryRepo.addCategory(CostCategory(title = title))
+            categoryRepo.addCategory(RevenueCategory(title = title))
         }
     }
 
-    fun deleteCategory(category: CostCategory){
+    fun deleteCategory(category: RevenueCategory){
         viewModelScope.launch(Dispatchers.IO){
             categoryRepo.deleteCategory(category)
         }

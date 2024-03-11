@@ -24,4 +24,8 @@ class RevenueCategoryRepository(private val dao: RevenueCategoryDao) {
         dao.addCategories(categories)
     }
 
+    fun deleteCategory(category: RevenueCategory){
+        dao.deleteCategory(category)
+    }
+
 }

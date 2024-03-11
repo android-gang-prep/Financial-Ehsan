@@ -5,9 +5,12 @@ import androidx.room.Room
 import com.example.financialehsan.database.AppDatabase
 import com.example.financialehsan.database.entities.CostCategory
 import com.example.financialehsan.database.entities.RevenueCategory
+import com.example.financialehsan.repositories.BudgetRepository
 import com.example.financialehsan.repositories.CostCategoryRepository
 import com.example.financialehsan.repositories.CostRepository
+import com.example.financialehsan.repositories.ReminderRepository
 import com.example.financialehsan.repositories.RevenueCategoryRepository
+import com.example.financialehsan.repositories.RevenueRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +67,18 @@ class MyApp: Application() {
                     val room:AppDatabase = get()
                     room.costDao()
                 }
+                single {
+                    val room:AppDatabase = get()
+                    room.revenueDao()
+                }
+                single {
+                    val room:AppDatabase = get()
+                    room.budgetDao()
+                }
+                single {
+                    val room:AppDatabase = get()
+                    room.reminderDao()
+                }
 
                 single {
                     CostCategoryRepository(get())
@@ -73,6 +88,15 @@ class MyApp: Application() {
                 }
                 single {
                     CostRepository(get())
+                }
+                single {
+                    RevenueRepository(get())
+                }
+                single {
+                    BudgetRepository(get())
+                }
+                single {
+                    ReminderRepository(get())
                 }
             })
         }

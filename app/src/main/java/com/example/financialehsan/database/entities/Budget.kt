@@ -5,13 +5,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 
-@Entity("revenues")
-data class Revenue(
+@Entity("budgets")
+data class Budget(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo("revenue_id")
-    val id:Int =0 ,
-    val amount:Long,
-    @ColumnInfo("category_id")
+    @ColumnInfo("budget_id")
+    val id:Int = 0,
+    @ColumnInfo("budget_category_id")
     val categoryId:Int,
-    val description:String
+    val amount:Long
 )

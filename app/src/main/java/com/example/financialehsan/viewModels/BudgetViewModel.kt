@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.financialehsan.database.entities.Cost
 import com.example.financialehsan.database.entities.CostCategory
+import com.example.financialehsan.database.entities.Budget
 import com.example.financialehsan.database.entities.relations.BudgetWithCategory
-import com.example.financialehsan.database.entities.relations.CostWithCategory
 import com.example.financialehsan.repositories.BudgetRepository
 import com.example.financialehsan.repositories.CostCategoryRepository
 import com.example.financialehsan.repositories.CostRepository
+import com.example.financialehsan.repositories.RevenueCategoryRepository
+import com.example.financialehsan.repositories.RevenueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,13 +19,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class CostViewModel:ViewModel(),KoinComponent {
-    private val costRepo:CostRepository by inject()
+class BudgetViewModel:ViewModel(),KoinComponent {
     private val budgetRepo:BudgetRepository by inject()
     private val categoryRepo:CostCategoryRepository by inject()
-
-    private val _costs = MutableStateFlow(emptyList<CostWithCategory>())
-    val costs = _costs.asStateFlow()
 
     private val _budgets = MutableStateFlow(emptyList<BudgetWithCategory>())
     val budgets = _budgets.asStateFlow()
@@ -32,7 +30,6 @@ class CostViewModel:ViewModel(),KoinComponent {
     val categories = _categories.asStateFlow()
 
     init {
-        getCosts()
         getBudgets()
         getCategories()
     }
@@ -44,17 +41,9 @@ class CostViewModel:ViewModel(),KoinComponent {
             }
         }
     }
-
-    fun getCosts(){
+    fun deleteBudget(budget: Budget){
         viewModelScope.launch(Dispatchers.IO){
-            costRepo.getCosts().collect{result->
-                _costs.update { result }
-            }
-        }
-    }
-    fun deleteCost(cost: Cost){
-        viewModelScope.launch(Dispatchers.IO){
-            costRepo.deleteCost(cost)
+            budgetRepo.deleteBudget(budget)
         }
     }
 
@@ -66,14 +55,14 @@ class CostViewModel:ViewModel(),KoinComponent {
         }
     }
 
-    fun addCost(cost: Cost){
+    fun addBudget(budget: Budget){
         viewModelScope.launch(Dispatchers.IO) {
-            costRepo.addCost(cost)
+            budgetRepo.addBudget(budget)
         }
     }
-    fun updateCost(cost: Cost){
+    fun updateBudget(budget: Budget){
         viewModelScope.launch(Dispatchers.IO) {
-            costRepo.updateCost(cost)
+            budgetRepo.updateBudget(budget)
         }
     }
 

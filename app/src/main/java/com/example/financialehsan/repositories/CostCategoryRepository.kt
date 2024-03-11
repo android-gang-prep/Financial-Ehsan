@@ -14,8 +14,8 @@ class CostCategoryRepository(private val dao: CostCategoryDao) {
         return dao.getLatestCategories()
     }
 
-    fun addCategory(category:CostCategory){
-        dao.addCategory(category)
+    fun addCategory(category:CostCategory):Long{
+        return dao.addCategory(category)
     }
 
     fun addCategories(categories:List<CostCategory>){

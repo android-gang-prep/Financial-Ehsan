@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,36 +69,55 @@ import com.example.financialehsan.ui.theme.diroozFont
 import com.example.financialehsan.utils.formatPrice
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+data class LimitSheetData(
+    val cost: Cost,
+    val categoryTitle:String,
+    val budgetAmount: Long,
+    val costAmount: Long,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CostsScreen(viewModel: CostViewModel = viewModel()) {
 
     val appState = LocalAppState.current
     val costs by viewModel.costs.collectAsState()
+    val budgets by viewModel.budgets.collectAsState()
     val categories by viewModel.categories.collectAsState()
 
     val costSheetOpen = remember {
         mutableStateOf(false)
     }
-    val selectedCost = remember {
-        mutableStateOf<CostWithCategory?>(null)
-    }
     val newCategorySheetOpen = remember {
         mutableStateOf(false)
     }
+    val budgetLimitSheetOpen = remember {
+        mutableStateOf(false)
+    }
+    val budgetSheetData = remember {
+        mutableStateOf<LimitSheetData?>(null)
+    }
+
+    val selectedCost = remember {
+        mutableStateOf<CostWithCategory?>(null)
+    }
+
     val costSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val budgetLimitSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (costSheetOpen.value) {
         val editMode = selectedCost.value != null
-        val cost = remember {
+        val costAmount = remember {
             mutableStateOf(selectedCost.value?.cost?.amount?.toString().orEmpty())
         }
         val costDescription = remember {
             mutableStateOf(selectedCost.value?.cost?.description.orEmpty())
         }
         val selectedCategory = remember {
-            mutableIntStateOf(selectedCost.value?.category?.id ?: (categories.firstOrNull()?.id ?: 0))
+            mutableIntStateOf(
+                selectedCost.value?.category?.id ?: (categories.firstOrNull()?.id ?: 0)
+            )
         }
         ModalBottomSheet(
             onDismissRequest = {
@@ -112,7 +133,11 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                         .padding(end = 16.dp, bottom = 16.dp, start = 16.dp)
                         .navigationBarsPadding()
                 ) {
-                    Text(text = if (!editMode) "اضافه کردن هزینه" else "ویرایش هزینه", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (!editMode) "اضافه کردن هزینه" else "ویرایش هزینه",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -126,7 +151,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                                     selectedCategory.intValue = it.id
                                 },
                                 onLongClick = {
-                                    if (it.title !in defaultCostCategories && it.id != selectedCategory.intValue){
+                                    if (it.title !in defaultCostCategories && it.id != selectedCategory.intValue) {
                                         viewModel.deleteCategory(it)
                                     }
                                 }
@@ -147,9 +172,9 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = cost.value,
+                        value = costAmount.value,
                         onValueChange = {
-                            cost.value = it
+                            costAmount.value = it
                         },
                         placeholder = "مقدار هزینه (تومان)",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -166,29 +191,67 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                     )
                     Spacer(modifier = Modifier.heightIn(22.dp))
                     Button(onClick = {
-                        if (costDescription.value.isNotBlank() && cost.value.toLongOrNull() != null) {
-                            if (editMode){
-                                println(selectedCategory.intValue)
-                                viewModel.updateCost(selectedCost.value!!.cost.copy(
+                        if (costDescription.value.isNotBlank() && costAmount.value.toLongOrNull() != null) {
+                            val totalCostsForThisCategory = costs
+                                .filter { it.category?.id == selectedCategory.intValue }
+                                .sumOf { it.cost.amount }
+                            val totalCostsAmountForThisCategory = if(editMode){
+                                totalCostsForThisCategory + (costAmount.value.toLong() - ((costs.find { it.cost.id == selectedCost.value?.cost?.id })?.cost?.amount
+                                    ?: 0))
+                            }else{
+                                totalCostsForThisCategory + costAmount.value.toLong()
+                            }
+                            val budgetForThisCategory = budgets
+                                .filter {
+                                    it.category.id == selectedCategory.intValue
+                                }
+                            val budgetAmountForThisCategory = if(budgetForThisCategory.isEmpty()){
+                                Long.MAX_VALUE
+                            }else{
+                                budgetForThisCategory.sumOf { it.budget.amount }
+                            }
+                            val costToUpsert = if (editMode){
+                                selectedCost.value!!.cost.copy(
                                     categoryId = selectedCategory.intValue,
                                     description = costDescription.value,
-                                    amount = cost.value.toLong()
-                                ))
+                                    amount = costAmount.value.toLong()
+                                )
                             }else{
-                                viewModel.addCost(
-                                    Cost(
-                                        categoryId = selectedCategory.intValue,
-                                        description = costDescription.value,
-                                        amount = cost.value.toLong()
-                                    )
+                                Cost(
+                                    categoryId = selectedCategory.intValue,
+                                    description = costDescription.value,
+                                    amount = costAmount.value.toLong()
                                 )
                             }
-                            appState.scope.launch {
-                                costSheetState.hide()
-                            }
-                                .invokeOnCompletion {
-                                    costSheetOpen.value = false
+                            if (totalCostsAmountForThisCategory > budgetAmountForThisCategory) {
+                                budgetSheetData.value = LimitSheetData(
+                                    cost = costToUpsert ,
+                                    budgetAmount = budgetAmountForThisCategory,
+                                    costAmount = totalCostsAmountForThisCategory,
+                                    categoryTitle = categories.find { it.id == selectedCategory.intValue }?.title ?: ""
+                                )
+                                budgetLimitSheetOpen.value = true
+                            }else{
+                                if (editMode) {
+                                    viewModel.updateCost(costToUpsert)
+                                    appState.scope.launch {
+                                        costSheetState.hide()
+                                    }
+                                        .invokeOnCompletion {
+                                            costSheetOpen.value = false
+                                        }
+                                } else {
+                                    viewModel.addCost(costToUpsert)
+                                    appState.scope.launch {
+                                        costSheetState.hide()
+                                    }
+                                        .invokeOnCompletion {
+                                            costSheetOpen.value = false
+                                        }
                                 }
+                            }
+
+
                         }
 
                     }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
@@ -240,6 +303,74 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
             }
         }
     }
+    if (budgetLimitSheetOpen.value) {
+        val editMode = selectedCost.value != null
+        ModalBottomSheet(
+            onDismissRequest = {
+                budgetLimitSheetOpen.value = false
+            },
+            sheetState = budgetLimitSheetState,
+            containerColor = PrimaryVariant,
+            shape = RoundedCornerShape(topEnd = 32.dp, topStart = 32.dp),
+        ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Column(
+                    modifier = Modifier
+                        .padding(end = 16.dp, bottom = 16.dp, start = 16.dp)
+                        .navigationBarsPadding()
+                ) {
+                    Text(text = "مقدار کل هزینه های دسته بندی ${budgetSheetData.value?.categoryTitle} ( ${budgetSheetData.value?.costAmount?.formatPrice()} تومان ) از بودجه تعیین شده ( ${budgetSheetData.value?.budgetAmount?.formatPrice()} تومان ) بیشتر است، آیا همچنان مایل به ${if (editMode) "ویرایش" else "اضافه"} کردن هزینه هستید؟")
+                    Spacer(modifier = Modifier.height(22.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                if (editMode){
+                                    viewModel.updateCost(budgetSheetData.value!!.cost)
+                                }else{
+                                    viewModel.addCost(budgetSheetData.value!!.cost)
+                                }
+                                appState.scope.launch {
+                                    budgetLimitSheetState.hide()
+                                }.invokeOnCompletion {
+                                    budgetLimitSheetOpen.value = false
+                                }
+                                appState.scope.launch {
+                                    costSheetState.hide()
+                                }.invokeOnCompletion {
+                                    costSheetOpen.value = false
+                                }
+                            }, shape = RoundedCornerShape(8.dp), modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) {
+                            Text(text = if (editMode) "ویرایش کن" else "اضافه کن")
+                        }
+                        Button(
+                            onClick = {
+                                appState.scope.launch {
+                                    budgetLimitSheetState.hide()
+                                }.invokeOnCompletion {
+                                    budgetLimitSheetOpen.value = false
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Red
+                            )
+                        ) {
+                            Text(text = "بیخیال", color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -274,17 +405,28 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun CostItem(index: Int, cost: Cost, category: CostCategory?,onClick:()->Unit,onLongClick:()->Unit) {
+private fun CostItem(
+    index: Int,
+    cost: Cost,
+    category: CostCategory?,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     Card(
         modifier = Modifier
-            .fillMaxSize(), colors = CardDefaults.cardColors(
+            .fillMaxSize(),
+        colors = CardDefaults.cardColors(
             containerColor = PrimaryVariant
         ),
     ) {
-        Box(modifier = Modifier.fillMaxSize().combinedClickable(
-            onClick = onClick,
-            onLongClick = onLongClick
-        )){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
+        ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

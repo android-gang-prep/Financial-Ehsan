@@ -18,7 +18,7 @@ interface CostCategoryDao {
     fun getLatestCategories():List<CostCategory>
 
     @Insert
-    fun addCategory(category:CostCategory)
+    fun addCategory(category:CostCategory):Long
 
     @Insert
     fun addCategories(categories:List<CostCategory>)
