@@ -2,6 +2,7 @@ package com.example.financialehsan.screens.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -31,13 +32,23 @@ fun BottomBar(
             NavigationBarItem(
                 selected = currentRoute == it.route,
                 onClick = {
-                    appState.scope.launch {
-                        iconRotation.animateTo(
-                            iconRotation.value + 360,
-                            animationSpec = tween(400)
-                        )
+                    if (it.route != currentRoute){
+                        appState.scope.launch {
+                            iconRotation.animateTo(
+                                iconRotation.value + 360,
+                                animationSpec = tween(400)
+                            )
+                            iconRotation.animateTo(
+                                0f,
+                                animationSpec = snap()
+                            )
+                        }
+                        appState.navController.navigate(it.route){
+                            popUpTo(currentRoute){
+                                inclusive = true
+                            }
+                        }
                     }
-                    appState.navController.navigate(it.route)
                 },
                 icon = {
                     Icon(

@@ -11,11 +11,16 @@ import com.example.financialehsan.repositories.CostRepository
 import com.example.financialehsan.repositories.ReminderRepository
 import com.example.financialehsan.repositories.RevenueCategoryRepository
 import com.example.financialehsan.repositories.RevenueRepository
-import com.google.gson.Gson
+import com.example.financialehsan.viewModels.BudgetViewModel
+import com.example.financialehsan.viewModels.CostViewModel
+import com.example.financialehsan.viewModels.MainViewModel
+import com.example.financialehsan.viewModels.ReminderViewModel
+import com.example.financialehsan.viewModels.RevenueViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -33,7 +38,71 @@ class MyApp: Application() {
     private lateinit var koinApp:KoinApplication
     private val databaseScope = CoroutineScope(SupervisorJob()+Dispatchers.IO)
 
-
+    companion object{
+        val daoModule = module {
+            single {
+                val room:AppDatabase = get()
+                room.costCategoryDao()
+            }
+            single {
+                val room:AppDatabase = get()
+                room.revenueCategoryDao()
+            }
+            single {
+                val room:AppDatabase = get()
+                room.costDao()
+            }
+            single {
+                val room:AppDatabase = get()
+                room.revenueDao()
+            }
+            single {
+                val room:AppDatabase = get()
+                room.budgetDao()
+            }
+            single {
+                val room:AppDatabase = get()
+                room.reminderDao()
+            }
+        }
+        val repositoryModule = module {
+            single {
+                CostCategoryRepository(get())
+            }
+            single {
+                RevenueCategoryRepository(get())
+            }
+            single {
+                CostRepository(get())
+            }
+            single {
+                RevenueRepository(get())
+            }
+            single {
+                BudgetRepository(get())
+            }
+            single {
+                ReminderRepository(get())
+            }
+        }
+        val viewModelModule = module {
+            viewModel {
+                BudgetViewModel(get(),get())
+            }
+            viewModel{
+                CostViewModel(get(),get(),get())
+            }
+            viewModel{
+                ReminderViewModel(get(),get(),get())
+            }
+            viewModel {
+                RevenueViewModel(get(),get())
+            }
+            viewModel {
+                MainViewModel(get(),get())
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -41,64 +110,22 @@ class MyApp: Application() {
         val context = this.applicationContext
 
         koinApp = startKoin {
-            modules(module {
-                single {
-                    Gson()
-                }
-                single {
-                    Room.databaseBuilder(
-                        context,
-                        AppDatabase::class.java,
-                        "app_db"
-                    )
-                        .fallbackToDestructiveMigration()
-                        .build()
-                }
-
-                single {
-                    val room:AppDatabase = get()
-                    room.costCategoryDao()
-                }
-                single {
-                    val room:AppDatabase = get()
-                    room.revenueCategoryDao()
-                }
-                single {
-                    val room:AppDatabase = get()
-                    room.costDao()
-                }
-                single {
-                    val room:AppDatabase = get()
-                    room.revenueDao()
-                }
-                single {
-                    val room:AppDatabase = get()
-                    room.budgetDao()
-                }
-                single {
-                    val room:AppDatabase = get()
-                    room.reminderDao()
-                }
-
-                single {
-                    CostCategoryRepository(get())
-                }
-                single {
-                    RevenueCategoryRepository(get())
-                }
-                single {
-                    CostRepository(get())
-                }
-                single {
-                    RevenueRepository(get())
-                }
-                single {
-                    BudgetRepository(get())
-                }
-                single {
-                    ReminderRepository(get())
-                }
-            })
+            modules(
+                module {
+                    single {
+                        Room.databaseBuilder(
+                            context,
+                            AppDatabase::class.java,
+                            "app_db"
+                        )
+                            .fallbackToDestructiveMigration()
+                            .build()
+                    }
+                },
+                daoModule,
+                repositoryModule,
+                viewModelModule
+            )
         }
 
         insertDefaultCategories()

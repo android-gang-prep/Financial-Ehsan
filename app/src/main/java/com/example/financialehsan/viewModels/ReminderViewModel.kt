@@ -28,82 +28,101 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Calendar
 
-class ReminderViewModel:ViewModel(),KoinComponent {
-    private val reminderRepo:ReminderRepository by inject()
-    private val costRepo:CostRepository by inject()
-    private val categoryRepo:CostCategoryRepository by inject()
+class ReminderViewModel(
+    private val reminderRepo: ReminderRepository,
+    private val costRepo: CostRepository,
+    private val categoryRepo: CostCategoryRepository
+) : ViewModel() {
+
 
     private val _reminders = MutableStateFlow(emptyList<Reminder>())
     val reminders = _reminders.asStateFlow()
-
-
 
 
     init {
         getReminders()
     }
 
-    fun getReminders(){
-        viewModelScope.launch(Dispatchers.IO){
-            reminderRepo.getReminders().collect{result->
+    fun getReminders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            reminderRepo.getReminders().collect { result ->
                 _reminders.update { result }
             }
         }
     }
-    fun deleteReminder(reminder: Reminder,alarmManager: AlarmManager,context: Context){
-        viewModelScope.launch(Dispatchers.IO){
+
+    fun deleteReminder(reminder: Reminder, alarmManager: AlarmManager, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
             reminderRepo.deleteReminder(reminder)
         }
     }
 
-    fun addReminder(reminder: Reminder,alarmManager: AlarmManager,context: Context,shouldRequestPermission:()->Unit){
+    fun addReminder(
+        reminder: Reminder,
+        alarmManager: AlarmManager,
+        context: Context,
+        shouldRequestPermission: () -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     alarmManager.canScheduleExactAlarms()
                 } else {
-                   true
+                    true
                 }
-            ){
+            ) {
 
                 reminderRepo.addReminder(reminder).also {
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         reminder.nextPayTime,
-                        AlarmUtils.buildPendingIntent(context,it.toInt())
+                        AlarmUtils.buildPendingIntent(context, it.toInt())
                     )
 
                 }
 
-            }else{
+            } else {
                 shouldRequestPermission()
             }
 
         }
     }
-    fun payReminder(reminder: Reminder){
+
+    fun payReminder(reminder: Reminder) {
         val reminderCategoryTitle = "یادآور ها"
-        viewModelScope.launch(Dispatchers.IO){
-            val reminderCategoryId:Int
+        viewModelScope.launch(Dispatchers.IO) {
+            val reminderCategoryId: Int
 
             val latestCategories = categoryRepo.getLatestCategories()
-            val isReminderCategoryExists = latestCategories.any { it.title == reminderCategoryTitle }
-            if (!isReminderCategoryExists){
-                reminderCategoryId = categoryRepo.addCategory(CostCategory(title = reminderCategoryTitle)).toInt()
-            }else{
-                reminderCategoryId = latestCategories.find { it.title == reminderCategoryTitle }?.id ?: 0
+            val isReminderCategoryExists =
+                latestCategories.any { it.title == reminderCategoryTitle }
+            if (!isReminderCategoryExists) {
+                reminderCategoryId =
+                    categoryRepo.addCategory(CostCategory(title = reminderCategoryTitle)).toInt()
+            } else {
+                reminderCategoryId =
+                    latestCategories.find { it.title == reminderCategoryTitle }?.id ?: 0
             }
-            costRepo.addCost(Cost(
-                amount = reminder.amount,
-                categoryId = reminderCategoryId,
-                description = "پرداخت به مبلغ ${reminder.amount} برای یادآور ${reminder.description.limitString(50)}",
-            ))
+            costRepo.addCost(
+                Cost(
+                    amount = reminder.amount,
+                    categoryId = reminderCategoryId,
+                    description = "پرداخت به مبلغ ${reminder.amount} برای یادآور ${
+                        reminder.description.limitString(
+                            50
+                        )
+                    }",
+                )
+            )
             val nextTimeToPay = reminder.getNextTimeToPay()
-            updateReminder(reminder = reminder.copy(
-                nextPayTime = nextTimeToPay
-            ))
+            updateReminder(
+                reminder = reminder.copy(
+                    nextPayTime = nextTimeToPay
+                )
+            )
         }
     }
-    fun updateReminder(reminder: Reminder){
+
+    fun updateReminder(reminder: Reminder) {
         viewModelScope.launch(Dispatchers.IO) {
             reminderRepo.updateReminder(reminder)
         }

@@ -47,6 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
@@ -68,6 +71,7 @@ import com.example.financialehsan.ui.theme.Red
 import com.example.financialehsan.ui.theme.diroozFont
 import com.example.financialehsan.utils.formatPrice
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 data class LimitSheetData(
     val cost: Cost,
@@ -78,8 +82,7 @@ data class LimitSheetData(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CostsScreen(viewModel: CostViewModel = viewModel()) {
-
+fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
     val appState = LocalAppState.current
     val costs by viewModel.costs.collectAsState()
     val budgets by viewModel.budgets.collectAsState()
@@ -120,6 +123,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
             )
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag("cost_sheet"),
             onDismissRequest = {
                 costSheetOpen.value = false
             },
@@ -172,6 +176,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
+                        testTag = "cost_amount_field",
                         value = costAmount.value,
                         onValueChange = {
                             costAmount.value = it
@@ -182,6 +187,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
+                        testTag = "cost_description_field",
                         height = 200.dp,
                         value = costDescription.value,
                         onValueChange = {
@@ -254,7 +260,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
 
                         }
 
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag("submit_cost_button"), shape = RoundedCornerShape(8.dp)) {
                         Text(text = if (!editMode) "اضافه کردن" else "ویرایش")
                     }
                 }
@@ -391,7 +397,7 @@ fun CostsScreen(viewModel: CostViewModel = viewModel()) {
                 })
             }
         }
-        FloatingActionButton(onClick = {
+        FloatingActionButton(modifier=Modifier.testTag("add_cost_button"),onClick = {
             selectedCost.value = null
             costSheetOpen.value = true
         }, containerColor = PrimaryVariant) {

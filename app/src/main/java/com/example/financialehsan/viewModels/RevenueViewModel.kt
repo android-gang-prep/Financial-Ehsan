@@ -20,9 +20,10 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class RevenueViewModel:ViewModel(),KoinComponent {
-    private val revenueRepo:RevenueRepository by inject()
-    private val categoryRepo:RevenueCategoryRepository by inject()
+class RevenueViewModel(
+    private val revenueRepo: RevenueRepository,
+    private val categoryRepo: RevenueCategoryRepository
+) : ViewModel() {
 
     private val _revenues = MutableStateFlow(emptyList<RevenueWithCategory>())
     val revenues = _revenues.asStateFlow()
@@ -35,46 +36,52 @@ class RevenueViewModel:ViewModel(),KoinComponent {
         getCategories()
     }
 
-    fun getRevenues(){
-        viewModelScope.launch(Dispatchers.IO){
-            revenueRepo.getRevenues().collect{result->
+    fun getRevenues() {
+        viewModelScope.launch(Dispatchers.IO) {
+            revenueRepo.getRevenues().collect { result ->
                 _revenues.update { result }
             }
         }
     }
-    fun deleteRevenue(revenue: Revenue){
-        viewModelScope.launch(Dispatchers.IO){
+
+    fun deleteRevenue(revenue: Revenue) {
+        viewModelScope.launch(Dispatchers.IO) {
             revenueRepo.deleteRevenue(revenue)
         }
     }
 
-    fun getCategories(){
-        viewModelScope.launch(Dispatchers.IO){
-            categoryRepo.getCategories().collect{result->
+    fun getCategories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            categoryRepo.getCategories().collect { result ->
                 _categories.update { result }
             }
         }
     }
 
-    fun addRevenue(revenue: Revenue){
+    fun getLatestCategories(): List<RevenueCategory> {
+        return categoryRepo.getLatestCategories()
+    }
+
+    fun addRevenue(revenue: Revenue) {
         viewModelScope.launch(Dispatchers.IO) {
             revenueRepo.addRevenue(revenue)
         }
     }
-    fun updateRevenue(revenue: Revenue){
+
+    fun updateRevenue(revenue: Revenue) {
         viewModelScope.launch(Dispatchers.IO) {
             revenueRepo.updateRevenue(revenue)
         }
     }
 
-    fun addCategory(title:String){
-        viewModelScope.launch(Dispatchers.IO){
+    fun addCategory(title: String) {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepo.addCategory(RevenueCategory(title = title))
         }
     }
 
-    fun deleteCategory(category: RevenueCategory){
-        viewModelScope.launch(Dispatchers.IO){
+    fun deleteCategory(category: RevenueCategory) {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepo.deleteCategory(category)
         }
     }

@@ -17,10 +17,12 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class CostViewModel:ViewModel(),KoinComponent {
-    private val costRepo:CostRepository by inject()
-    private val budgetRepo:BudgetRepository by inject()
-    private val categoryRepo:CostCategoryRepository by inject()
+class CostViewModel(
+    private val costRepo: CostRepository,
+    private val budgetRepo: BudgetRepository,
+    private val categoryRepo: CostCategoryRepository
+) : ViewModel() {
+
 
     private val _costs = MutableStateFlow(emptyList<CostWithCategory>())
     val costs = _costs.asStateFlow()
@@ -37,54 +39,56 @@ class CostViewModel:ViewModel(),KoinComponent {
         getCategories()
     }
 
-    fun getBudgets(){
-        viewModelScope.launch(Dispatchers.IO){
-            budgetRepo.getBudgets().collect{result->
+    fun getBudgets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            budgetRepo.getBudgets().collect { result ->
                 _budgets.update { result }
             }
         }
     }
 
-    fun getCosts(){
-        viewModelScope.launch(Dispatchers.IO){
-            costRepo.getCosts().collect{result->
+    fun getCosts() {
+        viewModelScope.launch(Dispatchers.IO) {
+            costRepo.getCosts().collect { result ->
                 _costs.update { result }
             }
         }
     }
-    fun deleteCost(cost: Cost){
-        viewModelScope.launch(Dispatchers.IO){
+
+    fun deleteCost(cost: Cost) {
+        viewModelScope.launch(Dispatchers.IO) {
             costRepo.deleteCost(cost)
         }
     }
 
-    fun getCategories(){
-        viewModelScope.launch(Dispatchers.IO){
-            categoryRepo.getCategories().collect{result->
+    fun getCategories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            categoryRepo.getCategories().collect { result ->
                 _categories.update { result }
             }
         }
     }
 
-    fun addCost(cost: Cost){
+    fun addCost(cost: Cost) {
         viewModelScope.launch(Dispatchers.IO) {
             costRepo.addCost(cost)
         }
     }
-    fun updateCost(cost: Cost){
+
+    fun updateCost(cost: Cost) {
         viewModelScope.launch(Dispatchers.IO) {
             costRepo.updateCost(cost)
         }
     }
 
-    fun addCategory(title:String){
-        viewModelScope.launch(Dispatchers.IO){
+    fun addCategory(title: String) {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepo.addCategory(CostCategory(title = title))
         }
     }
 
-    fun deleteCategory(category: CostCategory){
-        viewModelScope.launch(Dispatchers.IO){
+    fun deleteCategory(category: CostCategory) {
+        viewModelScope.launch(Dispatchers.IO) {
             categoryRepo.deleteCategory(category)
         }
     }

@@ -65,10 +65,11 @@ import com.example.financialehsan.database.entities.Budget
 import com.example.financialehsan.database.entities.CostCategory
 import com.example.financialehsan.database.entities.relations.BudgetWithCategory
 import com.example.financialehsan.defaultCostCategories
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BudgetManagementScreen(viewModel:BudgetViewModel = viewModel()) {
+fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
     val appState = LocalAppState.current
     val budgets by viewModel.budgets.collectAsState()
     val categories by viewModel.categories.collectAsState()

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.financialehsan.ui.theme.Primary
@@ -32,7 +33,8 @@ fun AppTextField(
     value:String,
     onValueChange:(String)->Unit,
     placeholder:String,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    testTag:String = "",
 ) {
     Box(modifier = modifier
         .clip(RoundedCornerShape(8.dp))
@@ -42,7 +44,7 @@ fun AppTextField(
         TextField(
             value = value,
             onValueChange = onValueChange,
-            modifier= Modifier.fillMaxSize(),
+            modifier= Modifier.fillMaxSize().testTag(testTag),
             placeholder = {
                 Text(text = placeholder, fontFamily = diroozFont)
             },

@@ -77,18 +77,17 @@ import com.example.financialehsan.ui.theme.PrimaryVariant
 import com.example.financialehsan.utils.formatPrice
 import com.example.financialehsan.viewModels.ReminderViewModel
 import kotlinx.coroutines.launch
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.financialehsan.R
 import com.example.financialehsan.database.entities.Reminder
 import com.example.financialehsan.database.entities.getTimeToPay
-import com.google.gson.internal.GsonBuildConfig
+import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RemindersScreen(viewModel: ReminderViewModel = viewModel()) {
+fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
 
     val context = LocalContext.current
     val appState = LocalAppState.current

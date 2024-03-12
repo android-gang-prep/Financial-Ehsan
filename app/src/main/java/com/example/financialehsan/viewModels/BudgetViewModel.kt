@@ -19,9 +19,10 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class BudgetViewModel:ViewModel(),KoinComponent {
-    private val budgetRepo:BudgetRepository by inject()
-    private val categoryRepo:CostCategoryRepository by inject()
+class BudgetViewModel(
+    private val budgetRepo:BudgetRepository,
+    private val categoryRepo:CostCategoryRepository
+):ViewModel() {
 
     private val _budgets = MutableStateFlow(emptyList<BudgetWithCategory>())
     val budgets = _budgets.asStateFlow()

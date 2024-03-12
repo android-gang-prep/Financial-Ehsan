@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.example.financialehsan"
     compileSdk = 34
-
+    testOptions.unitTests.isIncludeAndroidResources = true
     defaultConfig {
         applicationId = "com.example.financialehsan"
         minSdk = 23
@@ -16,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -59,15 +60,10 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("androidx.compose.material3:material3-android:1.3.0-alpha02")
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.runner)
 
     val roomVersion = "2.6.1"
     val navVersion = "2.7.7"
@@ -83,6 +79,7 @@ dependencies {
     implementation("io.insert-koin:koin-core-coroutines:3.5.3")
     implementation("io.insert-koin:koin-android:3.5.3")
     implementation("io.insert-koin:koin-compose:1.1.2")
+    implementation("io.insert-koin:koin-androidx-compose-navigation:3.5.3")
 
-    implementation ("com.google.code.gson:gson:2.10.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.3")
 }

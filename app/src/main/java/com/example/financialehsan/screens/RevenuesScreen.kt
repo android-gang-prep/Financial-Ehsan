@@ -67,10 +67,11 @@ import com.example.financialehsan.database.entities.RevenueCategory
 import com.example.financialehsan.database.entities.relations.RevenueWithCategory
 import com.example.financialehsan.defaultRevenueCategories
 import com.example.financialehsan.ui.theme.Green
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RevenuesScreen(viewModel: RevenueViewModel = viewModel()) {
+fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
     val appState = LocalAppState.current
     val revenues by viewModel.revenues.collectAsState()
     val categories by viewModel.categories.collectAsState()
