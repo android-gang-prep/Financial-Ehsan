@@ -33,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -48,16 +47,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.SecureFlagPolicy
 import com.example.financialehsan.viewModels.CostViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.financialehsan.LocalAppState
 import com.example.financialehsan.database.entities.Cost
 import com.example.financialehsan.database.entities.CostCategory
@@ -69,6 +64,7 @@ import com.example.financialehsan.screens.components.SelectableButton
 import com.example.financialehsan.ui.theme.PrimaryVariant
 import com.example.financialehsan.ui.theme.Red
 import com.example.financialehsan.ui.theme.diroozFont
+import com.example.financialehsan.constants.CostTestTags
 import com.example.financialehsan.utils.formatPrice
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -123,7 +119,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
             )
         }
         ModalBottomSheet(
-            modifier=Modifier.testTag("cost_sheet"),
+            modifier=Modifier.testTag(CostTestTags.CostBottomSheet.tag),
             onDismissRequest = {
                 costSheetOpen.value = false
             },
@@ -144,6 +140,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(
+                        modifier=Modifier.testTag(CostTestTags.CostCategoriesLazyRow.tag),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -164,7 +161,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                         item {
                             BorderButton(onClick = {
                                 newCategorySheetOpen.value = true
-                            }) {
+                            }, testTag =  CostTestTags.CostNewCategoryButton.tag) {
                                 Icon(
                                     imageVector = Icons.Rounded.Add,
                                     contentDescription = null,
@@ -176,7 +173,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        testTag = "cost_amount_field",
+                        testTag = CostTestTags.CostAmountField.tag,
                         value = costAmount.value,
                         onValueChange = {
                             costAmount.value = it
@@ -187,7 +184,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        testTag = "cost_description_field",
+                        testTag = CostTestTags.CostDescriptionField.tag,
                         height = 200.dp,
                         value = costDescription.value,
                         onValueChange = {
@@ -260,7 +257,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
 
                         }
 
-                    }, modifier = Modifier.fillMaxWidth().testTag("submit_cost_button"), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(CostTestTags.SubmitCostButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = if (!editMode) "اضافه کردن" else "ویرایش")
                     }
                 }
@@ -272,6 +269,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
             mutableStateOf("")
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag(CostTestTags.CostCategoryBottomSheet.tag),
             onDismissRequest = {
                 newCategorySheetOpen.value = false
             },
@@ -290,7 +288,8 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                     AppTextField(
                         value = categoryTitle.value,
                         onValueChange = { categoryTitle.value = it },
-                        placeholder = "عنوان دسته بندی"
+                        placeholder = "عنوان دسته بندی",
+                        testTag = CostTestTags.CostCategoryField.tag
                     )
                     Spacer(modifier = Modifier.height(22.dp))
                     Button(onClick = {
@@ -302,7 +301,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                                 newCategorySheetOpen.value = false
                             }
                         }
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(CostTestTags.CostCategorySubmitButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = "اضافه کردن")
                     }
                 }
@@ -312,6 +311,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
     if (budgetLimitSheetOpen.value) {
         val editMode = selectedCost.value != null
         ModalBottomSheet(
+            modifier=Modifier.testTag(CostTestTags.BudgetLimitBottomSheet.tag),
             onDismissRequest = {
                 budgetLimitSheetOpen.value = false
             },
@@ -351,6 +351,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                             }, shape = RoundedCornerShape(8.dp), modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
+                                .testTag(CostTestTags.BudgetLimitBottomSheetApplyButton.tag)
                         ) {
                             Text(text = if (editMode) "ویرایش کن" else "اضافه کن")
                         }
@@ -397,7 +398,7 @@ fun CostsScreen(viewModel: CostViewModel = koinViewModel()) {
                 })
             }
         }
-        FloatingActionButton(modifier=Modifier.testTag("add_cost_button"),onClick = {
+        FloatingActionButton(modifier=Modifier.testTag(CostTestTags.AddCostFloatingButton.tag),onClick = {
             selectedCost.value = null
             costSheetOpen.value = true
         }, containerColor = PrimaryVariant) {

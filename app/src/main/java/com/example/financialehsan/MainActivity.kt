@@ -13,13 +13,13 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,7 +40,6 @@ class MainActivity : ComponentActivity() {
     companion object{
         const val CHANNEL_NAME = "Financial"
     }
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -52,9 +51,6 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-
-
-
             FinancialEhsanTheme(true) {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -67,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     val findRoute =
                         bottomBarItems.find { currentBackstack?.destination?.route == it.route }
 
-                    var navigationIconRotation = remember {
+                    val navigationIconRotation = remember {
                         Animatable(0f)
                     }
 

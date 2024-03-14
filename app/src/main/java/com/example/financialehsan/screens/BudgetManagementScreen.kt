@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
@@ -61,6 +62,7 @@ import com.example.financialehsan.utils.formatPrice
 import com.example.financialehsan.viewModels.BudgetViewModel
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.financialehsan.constants.BudgetTestTags
 import com.example.financialehsan.database.entities.Budget
 import com.example.financialehsan.database.entities.CostCategory
 import com.example.financialehsan.database.entities.relations.BudgetWithCategory
@@ -96,6 +98,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
             mutableStateOf(selectedBudget.value?.category?.id ?: (filteredCategories.firstOrNull()?.id))
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag(BudgetTestTags.BudgetBottomSheet.tag),
             onDismissRequest = {
                 budgetSheetOpen.value = false
             },
@@ -112,6 +115,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                     Text(text = if (!editMode) "اضافه کردن بودجه" else "ویرایش بودجه", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(
+                        modifier=Modifier.testTag(BudgetTestTags.BudgetCategoriesLazyRow.tag),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -132,7 +136,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                         item {
                             BorderButton(onClick = {
                                 newCategorySheetOpen.value = true
-                            }) {
+                            }, testTag = BudgetTestTags.BudgetNewCategoryButton.tag) {
                                 Icon(
                                     imageVector = Icons.Rounded.Add,
                                     contentDescription = null,
@@ -149,7 +153,8 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                             budgetAmount.value = it
                         },
                         placeholder = "مقدار بودجه (تومان)",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        testTag = BudgetTestTags.BudgetAmountField.tag
                     )
                     Spacer(modifier = Modifier.heightIn(22.dp))
                     Button(onClick = {
@@ -175,7 +180,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                                 }
                         }
 
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(BudgetTestTags.SubmitBudgetButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = if (!editMode) "اضافه کردن" else "ویرایش")
                     }
                 }
@@ -187,6 +192,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
             mutableStateOf("")
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag(BudgetTestTags.BudgetCategoryBottomSheet.tag),
             onDismissRequest = {
                 newCategorySheetOpen.value = false
             },
@@ -205,7 +211,8 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                     AppTextField(
                         value = categoryTitle.value,
                         onValueChange = { categoryTitle.value = it },
-                        placeholder = "عنوان دسته بندی"
+                        placeholder = "عنوان دسته بندی",
+                        testTag = BudgetTestTags.BudgetCategoryField.tag
                     )
                     Spacer(modifier = Modifier.height(22.dp))
                     Button(onClick = {
@@ -217,7 +224,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                                 newCategorySheetOpen.value = false
                             }
                         }
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(BudgetTestTags.BudgetCategorySubmitButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = "اضافه کردن")
                     }
                 }
@@ -244,7 +251,7 @@ fun BudgetManagementScreen(viewModel:BudgetViewModel = koinViewModel()) {
                 })
             }
         }
-        FloatingActionButton(onClick = {
+        FloatingActionButton(modifier=Modifier.testTag(BudgetTestTags.AddBudgetFloatingButton.tag),onClick = {
             selectedBudget.value = null
             budgetSheetOpen.value = true
         }, containerColor = PrimaryVariant) {

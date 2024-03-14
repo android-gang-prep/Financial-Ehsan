@@ -14,11 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BorderButton(onClick:()->Unit, onLongClick:()->Unit = {}, contentPadding:PaddingValues = PaddingValues(6.dp), content: @Composable ()->Unit) {
+fun BorderButton(onClick:()->Unit, onLongClick:()->Unit = {}, contentPadding:PaddingValues = PaddingValues(6.dp),testTag:String? = null, content: @Composable ()->Unit) {
     Row(modifier = Modifier
         .height(32.dp)
         .clip(RoundedCornerShape(6.dp))
@@ -32,6 +33,7 @@ fun BorderButton(onClick:()->Unit, onLongClick:()->Unit = {}, contentPadding:Pad
             onLongClick = onLongClick
         )
         .padding(contentPadding)
+        .testTag(testTag.orEmpty())
         , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center){
         content()
     }

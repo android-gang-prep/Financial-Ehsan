@@ -16,9 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SelectableButton(text: String, selected: Boolean, onSelect: () -> Unit, onLongClick:()->Unit) {
+fun SelectableButton(text: String, selected: Boolean, onSelect: () -> Unit,testTag:String? = null, onLongClick:()->Unit) {
     BorderButton(
-        contentPadding = PaddingValues(horizontal = 16.dp), onClick = onSelect, onLongClick = onLongClick
+        contentPadding = PaddingValues(horizontal = 16.dp), onClick = onSelect, onLongClick = onLongClick, testTag = testTag
     ) {
         Text(text = text, fontSize = 13.sp)
         AnimatedVisibility(visible = selected) {

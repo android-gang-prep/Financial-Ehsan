@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
@@ -62,6 +63,7 @@ import com.example.financialehsan.utils.formatPrice
 import com.example.financialehsan.viewModels.RevenueViewModel
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.financialehsan.constants.RevenueTestTags
 import com.example.financialehsan.database.entities.Revenue
 import com.example.financialehsan.database.entities.RevenueCategory
 import com.example.financialehsan.database.entities.relations.RevenueWithCategory
@@ -100,6 +102,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
             mutableIntStateOf(selectedRevenue.value?.category?.id ?: (categories.firstOrNull()?.id ?: 0))
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag(RevenueTestTags.RevenueBottomSheet.tag),
             onDismissRequest = {
                 revenueSheetOpen.value = false
             },
@@ -116,6 +119,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                     Text(text = if (!editMode) "اضافه کردن درامد" else "ویرایش درامد", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(
+                        modifier=Modifier.testTag(RevenueTestTags.RevenueCategoriesLazyRow.tag),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -136,7 +140,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                         item {
                             BorderButton(onClick = {
                                 newCategorySheetOpen.value = true
-                            }) {
+                            }, testTag = RevenueTestTags.RevenueNewCategoryButton.tag) {
                                 Icon(
                                     imageVector = Icons.Rounded.Add,
                                     contentDescription = null,
@@ -148,6 +152,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
+                        testTag = RevenueTestTags.RevenueAmountField.tag,
                         value = revenueAmount.value,
                         onValueChange = {
                             revenueAmount.value = it
@@ -158,6 +163,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
+                        testTag = RevenueTestTags.RevenueDescriptionField.tag,
                         height = 200.dp,
                         value = revenueDescription.value,
                         onValueChange = {
@@ -169,7 +175,6 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                     Button(onClick = {
                         if (revenueDescription.value.isNotBlank() && revenueAmount.value.toLongOrNull() != null) {
                             if (editMode){
-                                println(selectedCategory.intValue)
                                 viewModel.updateRevenue(selectedRevenue.value!!.revenue.copy(
                                     categoryId = selectedCategory.intValue,
                                     description = revenueDescription.value,
@@ -192,7 +197,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                                 }
                         }
 
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(RevenueTestTags.SubmitRevenueButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = if (!editMode) "اضافه کردن" else "ویرایش")
                     }
                 }
@@ -204,6 +209,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
             mutableStateOf("")
         }
         ModalBottomSheet(
+            modifier=Modifier.testTag(RevenueTestTags.RevenueCategoryBottomSheet.tag),
             onDismissRequest = {
                 newCategorySheetOpen.value = false
             },
@@ -222,7 +228,8 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                     AppTextField(
                         value = categoryTitle.value,
                         onValueChange = { categoryTitle.value = it },
-                        placeholder = "عنوان دسته بندی"
+                        placeholder = "عنوان دسته بندی",
+                        testTag = RevenueTestTags.RevenueCategoryField.tag
                     )
                     Spacer(modifier = Modifier.height(22.dp))
                     Button(onClick = {
@@ -234,7 +241,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                                 newCategorySheetOpen.value = false
                             }
                         }
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth().testTag(RevenueTestTags.RevenueCategorySubmitButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = "اضافه کردن")
                     }
                 }
@@ -261,7 +268,7 @@ fun RevenuesScreen(viewModel: RevenueViewModel = koinViewModel()) {
                 })
             }
         }
-        FloatingActionButton(onClick = {
+        FloatingActionButton(modifier=Modifier.testTag(RevenueTestTags.AddRevenueFloatingButton.tag),onClick = {
             selectedRevenue.value = null
             revenueSheetOpen.value = true
         }, containerColor = PrimaryVariant) {

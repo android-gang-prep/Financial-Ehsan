@@ -16,10 +16,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.financialehsan.constants.MainTestTags
 import com.example.financialehsan.ui.theme.Green
 import com.example.financialehsan.ui.theme.PrimaryVariant
 import com.example.financialehsan.ui.theme.Red
@@ -66,11 +68,11 @@ fun TopBar(
         actions = {
             Column(modifier=Modifier.padding(horizontal = 12.dp)) {
                 AnimatedContent(targetState = sumOfCosts.toLong().formatPrice()) {
-                    Text(text = "هزینه ها: $it تومان", fontSize = 12.sp, color = Red)
+                    Text(text = "هزینه ها: $it تومان", fontSize = 12.sp, color = Red,modifier=Modifier.testTag(MainTestTags.TotalCostsAmount.tag))
                 }
                 Spacer(modifier = Modifier.height(2.dp))
                 AnimatedContent(targetState = sumOfRevenues.toLong().formatPrice()) {
-                    Text(text = "درامد: $it تومان", fontSize = 12.sp, color = Green)
+                    Text(text = "درامد: $it تومان", fontSize = 12.sp, color = Green,modifier=Modifier.testTag(MainTestTags.TotalRevenuesAmount.tag))
                 }
             }
         }

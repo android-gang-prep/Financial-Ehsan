@@ -16,7 +16,11 @@ import com.example.financialehsan.database.entities.Revenue
 import com.example.financialehsan.database.entities.RevenueCategory
 
 
-@Database(entities = [CostCategory::class,RevenueCategory::class,Cost::class,Revenue::class,Budget::class,Reminder::class], version = 9)
+@Database(
+    entities = [CostCategory::class,RevenueCategory::class,Cost::class,Revenue::class,Budget::class,Reminder::class],
+    version = 9,
+    exportSchema = false
+)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun costCategoryDao():CostCategoryDao
     abstract fun revenueCategoryDao():RevenueCategoryDao

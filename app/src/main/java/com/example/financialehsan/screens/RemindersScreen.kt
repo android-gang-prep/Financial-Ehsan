@@ -26,27 +26,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -63,12 +57,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.financialehsan.BuildConfig
 import com.example.financialehsan.LocalAppState
 import com.example.financialehsan.screens.components.AppTextField
 import com.example.financialehsan.screens.components.BorderButton
@@ -78,9 +74,13 @@ import com.example.financialehsan.utils.formatPrice
 import com.example.financialehsan.viewModels.ReminderViewModel
 import kotlinx.coroutines.launch
 import com.example.financialehsan.R
+import com.example.financialehsan.constants.ReminderTestTags
 import com.example.financialehsan.database.entities.Reminder
 import com.example.financialehsan.database.entities.getTimeToPay
+import com.example.financialehsan.utils.areWeInTestMode
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import org.koin.core.qualifier.named
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -163,7 +163,8 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
                         }) {
                             Text(text = "بازگشت")
                         }
-                    }
+                    },
+
                 ) {
                     DatePicker(state = datePickerState)
                 }
@@ -171,6 +172,7 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
         }
 
         ModalBottomSheet(
+            modifier=Modifier.testTag(ReminderTestTags.ReminderBottomSheet.tag),
             onDismissRequest = {
                 reminderSheetOpen.value = false
             },
@@ -197,7 +199,8 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
                             reminderAmount.value = it
                         },
                         placeholder = "مبلغ یادآور (تومان)",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        testTag = ReminderTestTags.ReminderAmountField.tag
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -232,7 +235,8 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
                         onValueChange = {
                             reminderDescription.value = it
                         },
-                        placeholder = "توضیحات یادآور"
+                        placeholder = "توضیحات یادآور",
+                        testTag = ReminderTestTags.ReminderDescriptionField.tag
                     )
                     Spacer(modifier = Modifier.heightIn(22.dp))
                     Button(onClick = {
@@ -271,7 +275,9 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
                                 }
                         }
 
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(ReminderTestTags.SubmitReminderButton.tag), shape = RoundedCornerShape(8.dp)) {
                         Text(text = if (!editMode) "اضافه کردن" else "ویرایش")
                     }
                 }
@@ -301,13 +307,18 @@ fun RemindersScreen(viewModel: ReminderViewModel = koinViewModel()) {
                 }, viewModel = viewModel)
             }
         }
-        FloatingActionButton(onClick = {
+
+        FloatingActionButton(modifier=Modifier.testTag(ReminderTestTags.AddReminderFloatingButton.tag),onClick = {
             selectedReminder.value = null
-            permissionLauncher.launch(
-                arrayOf(
-                    android.Manifest.permission.POST_NOTIFICATIONS,
+            if (BuildConfig.DEBUG){
+                reminderSheetOpen.value =  true
+            }else{
+                permissionLauncher.launch(
+                    arrayOf(
+                        android.Manifest.permission.POST_NOTIFICATIONS,
+                    )
                 )
-            )
+            }
         }, containerColor = PrimaryVariant) {
             Icon(
                 imageVector = Icons.Default.Add,
