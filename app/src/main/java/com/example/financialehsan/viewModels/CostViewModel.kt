@@ -69,6 +69,10 @@ class CostViewModel(
         }
     }
 
+    fun getLatestCategories(): List<CostCategory> {
+        return categoryRepo.getLatestCategories()
+    }
+
     fun addCost(cost: Cost) {
         viewModelScope.launch(Dispatchers.IO) {
             costRepo.addCost(cost)

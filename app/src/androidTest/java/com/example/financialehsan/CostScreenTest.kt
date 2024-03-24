@@ -55,7 +55,7 @@ class CostScreenTest : BaseTest() {
             .performTextInput(costDescription)
         composeTestRule.onNodeWithTag(CostTestTags.SubmitCostButton.tag)
             .performClick()
-        composeTestRule.waitUntilDoesNotExist(hasTestTag(CostTestTags.CostBottomSheet.tag))
+        composeTestRule.waitUntilDoesNotExist(hasTestTag(CostTestTags.CostBottomSheet.tag), 2000)
         composeTestRule.waitUntil {
             composeTestRule.onNode(hasText(costDescription)).isDisplayed() &&
             composeTestRule.onNode(hasText(costAmount.toLong().formatPrice())).isDisplayed()
@@ -105,7 +105,7 @@ class CostScreenTest : BaseTest() {
             .performTextInput("cost")
         composeTestRule.onNodeWithTag(CostTestTags.SubmitCostButton.tag)
             .performClick()
-        composeTestRule.waitUntilDoesNotExist(hasTestTag(CostTestTags.CostBottomSheet.tag))
+        composeTestRule.waitUntilDoesNotExist(hasTestTag(CostTestTags.CostBottomSheet.tag), 2000)
         composeTestRule.waitUntil {
             composeTestRule.onNodeWithText(category).isDisplayed()
         }

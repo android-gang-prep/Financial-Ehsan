@@ -22,6 +22,10 @@ interface CostDao {
     @Transaction
     fun getCosts():Flow<List<CostWithCategory>>
 
+    @Query("SELECT * FROM costs")
+    @Transaction
+    fun getLatestCosts(): List<CostWithCategory>
+
     @Delete
     fun deleteCost(cost: Cost)
 }

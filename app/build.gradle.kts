@@ -63,8 +63,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
 
     implementation("androidx.compose.material3:material3-android:1.3.0-alpha02")
+    implementation(libs.core.ktx)
     implementation(libs.androidx.junit.ktx)
-    implementation(libs.androidx.runner)
+
+    testImplementation("junit:junit:4.12")
+    androidTestImplementation("androidx.test:core:1.2.0")
 
     val roomVersion = "2.6.1"
     val navVersion = "2.7.7"
@@ -82,5 +85,12 @@ dependencies {
     implementation("io.insert-koin:koin-compose:1.1.2")
     implementation("io.insert-koin:koin-androidx-compose-navigation:3.5.3")
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.robolectric:robolectric:4.11.1")
+
+    // Test rules and transitive dependencies:
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.3")
+    // Needed for createAndroidComposeRule, but not createComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.3")
+
 }
